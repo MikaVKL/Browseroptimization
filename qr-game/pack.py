@@ -11,6 +11,7 @@ import zlib
 
 ALPHA = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$*+-./:"  # 43 Zeichen, QR-Alphanumerik-Zeichensatz
 HERE = pathlib.Path(__file__).parent
+BASE = "https://mikavkl.github.io/Browseroptimization/qr-game/play.html"  # oeffentliche Adresse von play.html
 
 
 def minify(src: str) -> str:
@@ -66,7 +67,7 @@ new Response(new Blob([new Uint8Array(b)]).stream().pipeThrough(new Decompressio
 })();
 </script>"""
     (HERE / "play.html").write_text(page + "\n", encoding="utf-8")
-    link = f"play.html#{payload}"
+    link = f"{BASE}#{payload}"
     (HERE / "link.txt").write_text(link + "\n", encoding="utf-8")
     print(f"Code: {len(code)} Zeichen, gepackt: {len(packed)} Bytes, Link: {len(link)} Zeichen")
     print(link)
