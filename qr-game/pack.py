@@ -5,7 +5,7 @@ Die Ausgabe ist eine einzelne HTML-Datei (play.html), die den Link dekodiert und
 Den Link (play.html#...) kann man dann als QR-Code kodieren.
 """
 import pathlib
-import re
+import subprocess
 import sys
 import zlib
 
@@ -14,7 +14,16 @@ HERE = pathlib.Path(__file__).parent
 
 
 def minify(src: str) -> str:
-    # Nur sicher fuer dieses Beispiel: ganze Kommentarzeilen und Einrueckung entfernen.
+    # Bevorzugt terser (npm i -D terser). Ohne terser werden nur Kommentarzeilen und Einrueckung entfernt.
+    try:
+        r = subprocess.run(
+            ["npx", "--no-install", "terser", "-c", "passes=3,unsafe=true", "-m", "--toplevel"],
+            input=src, capture_output=True, text=True, cwd=HERE, check=True,
+        )
+        if r.stdout.strip():
+            return r.stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        pass
     lines = [l.strip() for l in src.splitlines()]
     return "\n".join(l for l in lines if l and not l.startswith("//"))
 
@@ -49,10 +58,12 @@ def main():
     page = """<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width">
 <script>
 onhashchange=()=>location.reload();
+(()=>{
 let n=0n,a='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$*+-./:';
 for(const c of decodeURIComponent(location.hash.slice(1))) n=n*43n+BigInt(a.indexOf(c));
 const b=[];for(;n;n>>=8n)b.unshift(Number(n&255n));
 new Response(new Blob([new Uint8Array(b)]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text().then(eval);
+})();
 </script>"""
     (HERE / "play.html").write_text(page + "\n", encoding="utf-8")
     link = f"play.html#{payload}"

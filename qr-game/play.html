@@ -1,8 +1,10 @@
 <!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width">
 <script>
 onhashchange=()=>location.reload();
+(()=>{
 let n=0n,a='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$*+-./:';
 for(const c of decodeURIComponent(location.hash.slice(1))) n=n*43n+BigInt(a.indexOf(c));
 const b=[];for(;n;n>>=8n)b.unshift(Number(n&255n));
 new Response(new Blob([new Uint8Array(b)]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text().then(eval);
+})();
 </script>
