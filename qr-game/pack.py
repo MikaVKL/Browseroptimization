@@ -36,7 +36,7 @@ def decode(s: str) -> bytes:  # Gegenprobe, spiegelt den Browser-Dekoder
 
 
 def main():
-    src = (HERE / "game.js").read_text(encoding="utf-8")
+    src = (HERE / (sys.argv[1] if len(sys.argv) > 1 else "game.js")).read_text(encoding="utf-8")
     code = minify(src)
     comp = zlib.compressobj(9, zlib.DEFLATED, -15)  # raw deflate, wie DecompressionStream('deflate-raw')
     packed = comp.compress(code.encode("utf-8")) + comp.flush()
